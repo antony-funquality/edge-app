@@ -1,0 +1,43 @@
+﻿version: "3.3"
+services:
+  #datalogger-dl:
+    #container_name: datalogger-dl
+    #image: datalogger-dl
+    #build: ./datalogger-dl
+    #volumes:
+      #- ./data:/usr/src/app/data
+    #environment:
+      #NATS_URL: nats:4222
+      #FLUENT_URL: fluentd
+      #FLUENT_PORT: 24224
+      #DATA_DIR: ./data
+    #depends_on:
+      #- nats
+      #- fluentd
+      #- db-connector-node
+    #restart: unless-stopped
+
+  nats:
+    #container_name: nats
+    image: nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: "-D -V -c /etc/nats/nats-server.conf"
+    volumes:
+      - ./nats-server.conf:/etc/nats/nats-server.conf:ro
+    restart: unless-stopped
+
+  fluentd:
+    #container_name: fluentd
+    image: fluent/fluentd
+    volumes:
+      - ./fluent.conf:/fluentd/etc/fluent.conf:ro
+      - ./fluentd:/fluentd/log
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    restart: unless-stopped
+
+volumes:
+  reports:

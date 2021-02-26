@@ -1,0 +1,34 @@
+env:
+  commonjs: true
+  es6: true
+  node: true
+extends:
+  - airbnb-base
+  - plugin:prettier/recommended
+  - plugin:import/errors
+  - plugin:import/warnings
+  - plugin:import/typescript # this line does the trick
+globals:
+  Atomics: readonly
+  SharedArrayBuffer: readonly
+parser: '@typescript-eslint/parser'
+parserOptions:
+  ecmaVersion: 2018
+plugins:
+  - '@typescript-eslint'
+rules:
+  {
+    no-undef: 'off',
+    no-unused-vars: 'off',
+    "no-restricted-syntax": ["error", "ForInStatement"],
+    "no-await-in-loop": 'off',
+    "max-classes-per-file": "off",
+    "import/prefer-default-export": "off",
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": ["**/*.tests.ts"]}],
+    'import/extensions':
+      [
+        'error',
+        'ignorePackages',
+        { 'js': 'never', 'jsx': 'never', 'ts': 'never', 'tsx': 'never' },
+      ],
+  }
