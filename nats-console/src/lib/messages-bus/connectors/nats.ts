@@ -1,13 +1,10 @@
 import { Client, connect } from 'nats';
 import { MessageBus, MessageBusConfig, MessageReceiveCallback } from '../base';
-import { Logger } from '../../logger';
 
 export class MessageBusNats extends MessageBus {
   private readonly url: string;
 
   private client?: Client;
-
-  private logger: Logger;
 
   constructor(
     config: MessageBusConfig,
@@ -17,36 +14,33 @@ export class MessageBusNats extends MessageBus {
 
     // TODO Validate config structure.
     this.url = <string>config.url;
-
-    this.logger = new Logger('nats');
   }
 
   async attach(subscriptions: string[]): Promise<void> {
-    this.client = connect({
+    this.client = await connect({
       url: this.url,
       json: true,
       noEcho: true,
       reconnect: true,
-      maxReconnectAttempts: -1,
     });
 
     this.client.on('connect', () => {
-      this.logger.debug('connected');
+      // TODO Debug logging.
     });
 
     this.client.on('disconnect', () => {
-      this.logger.debug('disconnect');
+      // TODO Debug logging.
     });
 
     this.client.on('reconnect', () => {
-      this.logger.debug('reconnect');
+      // TODO Debug logging.
     });
 
     for (const topic of subscriptions) {
-      this.client.subscribe(
+      const sub = this.client.subscribe(
         topic,
-        (message: object, replyPath: any, msgTopic: string) => {
-          this.messageReceiveCallback(msgTopic, message, replyPath);
+        (message: any, replyPath: any, topic: any) => {
+          this.messageReceiveCallback(topic, message, replyPath);
         }
       );
     }
@@ -57,47 +51,32 @@ export class MessageBusNats extends MessageBus {
 
     if (this.client) {
       await this.client.close();
-      this.client = undefined;
     }
   }
 
   async send(
     topic: string,
-    message: object,
-    waitReplyFor: number | undefined = undefined
-  ): Promise<void | any> {
-    if (this.client) {
-      if (waitReplyFor) {
-        // TODO Test this part correctly.
-        return new Promise((resolve, reject) => {
-          // @ts-ignore
-          this.client.request(
-            topic,
-            message,
-            { timeout: waitReplyFor },
-            (payload: any) => {
-              if (payload instanceof Error) {
-                reject(payload);
-              } else {
-                resolve(payload);
-              }
-            }
-          );
-        });
-      }
-
-      this.client.publish(topic, message);
-      return Promise.resolve();
-    }
-
-    throw new Error(`"attach" needs to be called before sending messages.`);
-  }
-
-  async reply(replyPath: any, message: object): Promise<void> {
+    message: any,
+    waitReply: number | undefined = undefined
+  ): Promise<void> {
     // async kept for standardization.
 
     if (this.client) {
-      if (replyPath) {
+      if (waitReply) {
+        // TODO
+      } else {
+        this.client.publish(topic, message);
+      }
+    } else {
+      throw new Error(`"attach" needs to be called before sending messages.`);
+    }
+  }
+
+  async reply(replyPath: any, message: any): Promise<void> {
+    // async kept for standardization.
+
+    if (this.client) {
+      if(replyPath) {
         this.client.publish(replyPath, message);
       } else {
         // TODO Log error

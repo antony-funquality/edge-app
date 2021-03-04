@@ -1,0 +1,7 @@
+node_modules/
+typedoc/
+
+/fluentd/
+
+.idea/
+.directory

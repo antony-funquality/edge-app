@@ -3,7 +3,7 @@ export interface MessageBusConfig {
 }
 
 export interface MessageReceiveCallback {
-  (topic: string, message: object, replyPath: any): void;
+  (topic: string, message: any, replyPath: any): void;
 }
 
 export class MessageBus {
@@ -16,27 +16,19 @@ export class MessageBus {
     this.messageReceiveCallback = messageReceiveCallback;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   attach(subscriptions: string[]): Promise<void> {
     throw new Error('Not implemented [MessageBus:attach]');
   }
 
-  // eslint-disable-next-line class-methods-use-this
   detach(): Promise<void> {
     throw new Error('Not implemented [MessageBus:detach]');
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  send(
-    topic: string,
-    message: object,
-    waitReplyFor: number | undefined = undefined
-  ): Promise<void> {
+  send(topic: string, message: any): Promise<void> {
     throw new Error('Not implemented [MessageBus:send]');
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  reply(replyPath: any, message: object): Promise<void> {
+  reply(replyPath: any, message: any): Promise<void> {
     throw new Error('Not implemented [MessageBus:reply]');
   }
 }

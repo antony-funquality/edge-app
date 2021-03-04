@@ -1,52 +1,68 @@
-import { getConfig } from './lib/config';
-import { Logger } from './lib/logger';
-import { initBackendConsole } from './lib/logger/backend/console';
-import { initBackendFluent } from './lib/logger/backend/fluent';
-import messagesBuses from './lib/messages-bus';
+import { Service } from './lib/standard-service';
+import {
+  SrvFeatPresence,
+  SrvFeatSettings,
+  SrvFeatStartStop,
+} from './lib/standard-service/svc-flavors';
+import { MessagesRouter } from './messages-router';
 
-// Entry point of the application
+class MyService extends Service
+  implements SrvFeatSettings, SrvFeatStartStop, SrvFeatPresence {
+  applyNewSettings(): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
+  start(): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
+  stop(): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
+  presence(
+    serviceName: string,
+    presence: boolean,
+    started: boolean
+  ): Promise<void> {
+    console.log('presence', serviceName, { presence, started });
+    return Promise.resolve(undefined);
+  }
+
+  superMethod() {
+    console.log("I'm a super method");
+  }
+
+  async testNatsRequest() {
+    await this.messageBus.send('test', {}, 2000);
+  }
+}
+
 async function main() {
-  // Init minimal logger.
-  Logger.addBackend(initBackendConsole());
-  const logger = new Logger('index');
+  const myService = <MyService>await MyService.init('edge-app', 'nats');
 
-  // Load all configurations.
-  const generalConfig = await getConfig('general');
-  const fluentConfig = await getConfig('fluent');
-  const natsConfig = await getConfig('nats');
+  myService.superMethod();
 
-  // Enable fluent logging.
-  Logger.addBackend(
-    initBackendFluent(
-      <string>fluentConfig.host,
-      <number>fluentConfig.port,
-      <string>generalConfig.servicename
-    )
-  );
+  await myService.ready();
 
-  logger.info(`----- Starting... -------`);
+  await myService.testNatsRequest();
 
-  const nats = new messagesBuses.nats(
-    natsConfig,
-    (topic, message, replyPath) => {
-      console.log(topic, message, replyPath);
-    }
-  );
+  // ----- Init messages router.
+  // TODO Refactor with an array.
+  // TODO Validate that there is no "doublons".
+  const routerConfig = {
+    sources: {
+      src1: { busType: 'mqtt', topic: 'data' },
+      src2: { busType: 'nats', topic: 'to-external' },
+      dst1: { busType: 'nats', topic: 'mqtt-data' },
+      dst2: { busType: 'mqtt', topic: 'data-from-app' },
+      dst3: { busType: 'mqtt', topic: 'data-from-app-again' },
+    },
+    routes: ['src1->dst1', 'src2->dst2', 'src2->dst3'],
+  };
 
-  await nats.attach(['srv.*']);
-  await nats.send('srv.presence', { name: generalConfig.servicename });
-
-  //
-  // await nats.connect();
-  // logger.info(`Nats link ready.`);
-  //
-  // // TODO Init logic.
-  // logger.info(`Logic is ready.`);
-  //
-  // await router();
-  // logger.info(`Accepting NATS request.`);
-  //
-  // logger.info(`----- All started -------`);
+  const messagesRouter = await MessagesRouter.init(routerConfig);
+  await messagesRouter.start();
 }
 
 main().catch((err) => {

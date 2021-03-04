@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "fluent-logger": "^3.4.1",
-    "mqtt": "^4.2.6",
     "nats": "^1.4.12",
     "sinon": "^9.2.4",
     "uuid": "^8.3.2"

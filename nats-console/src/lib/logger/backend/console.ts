@@ -17,12 +17,12 @@ export function initBackendConsole() {
 
     let logFunc;
 
-    if ([LOG_LEVEL.WARN, LOG_LEVEL.ERROR].includes(level)) {
-      // eslint-disable-next-line no-console
-      logFunc = console.error;
-    } else {
+    if ([LOG_LEVEL.DEBUG, LOG_LEVEL.INFO].includes(level)) {
       // eslint-disable-next-line no-console
       logFunc = console.log;
+    } else {
+      // eslint-disable-next-line no-console
+      logFunc = console.error;
     }
 
     const timestampStr = timestamp.toISOString();

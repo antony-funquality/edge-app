@@ -1,5 +1,13 @@
 import { MessageBusNats } from './connectors/nats';
+import { MessageBusMqtt } from './connectors/mqtt';
 
-export default {
+interface BusTypes {
+  [key: string]: any;
+}
+
+const messageBuses: BusTypes = {
   nats: MessageBusNats,
+  mqtt: MessageBusMqtt,
 };
+
+export default messageBuses;

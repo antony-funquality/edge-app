@@ -1,5 +1,5 @@
 {
-  "name": "edge-app",
+  "name": "mqtt-console",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",

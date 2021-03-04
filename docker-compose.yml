@@ -17,17 +17,6 @@ services:
       #- db-connector-node
     #restart: unless-stopped
 
-  nats:
-    #container_name: nats
-    image: nats
-    ports:
-      - "4222:4222"
-      - "8222:8222"
-    command: "-D -V -c /etc/nats/nats-server.conf"
-    volumes:
-      - ./nats-server.conf:/etc/nats/nats-server.conf:ro
-    restart: unless-stopped
-
   fluentd:
     #container_name: fluentd
     image: fluent/fluentd
@@ -39,5 +28,24 @@ services:
       - "24224:24224/udp"
     restart: unless-stopped
 
+  nats:
+    #container_name: nats
+    image: nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: "-D -V -c /etc/nats/nats-server.conf"
+    #command: "-c /etc/nats/nats-server.conf"
+    volumes:
+      - ./nats-server.conf:/etc/nats/nats-server.conf:ro
+    restart: unless-stopped
+
+  mqtt:
+    #container_name: mqtt
+    image: eclipse-mosquitto
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    ports:
+      - "1883:1883"
 volumes:
   reports:

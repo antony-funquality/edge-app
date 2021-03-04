@@ -18,12 +18,10 @@ export function initBackendFluent(
   });
 
   fluent.on('error', (err: Error) => {
-    // eslint-disable-next-line no-console
     console.error(`logger-backend-fluent: error: ${err.message}`);
   });
 
   fluent.on('connect', () => {
-    // eslint-disable-next-line no-console
     console.log(`logger-backend-fluent: connected`);
   });
 
