@@ -45,7 +45,7 @@ async function main() {
 
   await myService.ready();
 
-  await myService.testNatsRequest();
+  // await myService.testNatsRequest();
 
   // ----- Init messages router.
   // TODO Refactor with an array.
